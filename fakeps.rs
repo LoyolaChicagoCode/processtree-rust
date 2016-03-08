@@ -13,6 +13,14 @@ fn main() {
         process::exit(1);
     }
 
-    println!("n = {0}", args[1]);
+    let n: i32 = match args[1].parse() {
+        Ok(n) => n,
+        _ => {
+            help();
+            process::exit(1);
+        }
+    };
+
+    println!("n = {0}", n);
 }
 
