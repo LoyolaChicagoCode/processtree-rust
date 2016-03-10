@@ -1,0 +1,7 @@
+[package]
+name = "processtree-rust"
+version = "0.1.0"
+authors = ["Konstantin Läufer <klaeufer@gmail.com>"]
+
+[dependencies]
+rand = "0.3.14"
