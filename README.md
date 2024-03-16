@@ -7,6 +7,7 @@ Finally an initial working version of the processtree example implemented in Rus
 ```
 $ cargo build --release
 $ ./target/release/fakeps 1000000 > 1000000.txt
+$ export RUST_LOG=info
 $ ./target/release/processtree < 1000000.txt > /dev/null
 ```
 

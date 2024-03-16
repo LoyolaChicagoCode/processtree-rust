@@ -2,6 +2,9 @@ use std::collections::HashMap;
 use std::time::SystemTime;
 use std::io::{self, BufRead};
 
+extern crate log;
+use log::info;
+
 // for simplified error handling
 extern crate anyhow;
 use anyhow::Result;
@@ -47,6 +50,7 @@ fn print_tree(tree: &ProcessTree, pid: usize, depth: usize) {
 }
 
 fn main() -> Result<()> {
+    env_logger::init();
     let mut lines = io::stdin().lock().lines();
     let header = lines.next().unwrap()?;
     let parser = make_parser_from_header(header.as_str()).unwrap();
@@ -55,6 +59,6 @@ fn main() -> Result<()> {
     let tree = build_tree(processes);
     let total = SystemTime::now().duration_since(start)?;
     print_tree(&tree, 0, 0);
-    eprintln!("Processing time: {:?}", total);
+    info!("Processing time: {:?}", total);
     Ok(())
 }
