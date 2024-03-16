@@ -10,6 +10,8 @@ name = "fakeps"
 name = "processtree"
 
 [dependencies]
+anyhow = "1.0.81"
 clap = { version = "4.5.3", features = ["derive"] }
+env_logger = "0.11.3"
 itertools = "0.12.1"
 rand = "0.8.5"

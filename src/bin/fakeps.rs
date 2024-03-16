@@ -1,28 +1,20 @@
 extern crate rand;
-
-use std::env;
-use std::process;
 use rand::{thread_rng, Rng};
 
-fn help() {
-    println!("usage: usage: fakeps n (where n > 0 = number of process table entries)");
+extern crate clap;
+use clap::Parser;
+
+#[derive(Parser, Debug)]
+#[command(version, about, long_about = None)]
+struct Args {
+    /// Number of fake processes to generate
+    #[arg(short, long, default_value_t = 10)]
+    number: usize,
 }
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
-
-    if args.len() != 2 {
-        help();
-        process::exit(1);
-    }
-
-    let n: usize = match args[1].parse() {
-        Ok(n) => n,
-        _ => {
-            help();
-            process::exit(1);
-        }
-    };
+    let args = Args::parse();
+    let n = args.number + 1;
 
     let mut ps = vec![vec![0usize; 0]; n];
 
@@ -33,10 +25,10 @@ fn main() {
         ps[random_pid].push(next_pid);
     };
 
-    println!("{:>10}{:>10} {}", "PID", "PPID", "CMD");
-    for ppid in 0..n {
-        for pid in &ps[ppid] {
-            println!("{:>10}{:>10} Fake process {}", pid, ppid, pid);
+    println!("{:>10}{:>10} CMD", "PID", "PPID");
+    for (ppid, children) in ps.iter().enumerate() {
+        for pid in children {
+            println!("{:>10}{:>10} Fake process {}", *pid, ppid, pid);
         }
     }
 }
