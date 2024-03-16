@@ -19,4 +19,4 @@ $ ./target/release/processtree < 1000000.txt > /dev/null
 
 - https://doc.rust-lang.org/cargo/guide/project-layout.html
 - https://github.com/proptest-rs/proptest
-- https://github.com/rust-unofficial/awesome-rust?tab=readme-ov-file
+- https://github.com/rust-unofficial/awesome-rust
