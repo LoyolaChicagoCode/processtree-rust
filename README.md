@@ -2,6 +2,10 @@
 
 Finally an initial working version of the processtree example implemented in Rust.
 
+## Build status
+
+[![Rust](https://github.com/lucproglangcourse/processtree-rust/actions/workflows/rust.yml/badge.svg)](https://github.com/lucproglangcourse/processtree-rust/actions/workflows/rust.yml)
+
 ## Building and running
 
 ```

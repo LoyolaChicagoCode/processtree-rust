@@ -1,6 +1,6 @@
 use std::collections::HashMap;
-use std::time::SystemTime;
 use std::io::{self, BufRead};
+use std::time::SystemTime;
 
 extern crate log;
 use log::info;

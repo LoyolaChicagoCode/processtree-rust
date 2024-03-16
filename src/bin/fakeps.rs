@@ -23,7 +23,7 @@ fn main() {
     for next_pid in 2usize..n {
         let random_pid: usize = 1 + rng.gen_range(0..next_pid - 1);
         ps[random_pid].push(next_pid);
-    };
+    }
 
     println!("{:>10}{:>10} CMD", "PID", "PPID");
     for (ppid, children) in ps.iter().enumerate() {
