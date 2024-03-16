@@ -29,7 +29,7 @@ fn main() {
     let mut rng = thread_rng();
     ps[0].push(1);
     for next_pid in 2usize..n {
-        let random_pid: usize = 1 + rng.gen_range(0, next_pid - 1);
+        let random_pid: usize = 1 + rng.gen_range(0..next_pid - 1);
         ps[random_pid].push(next_pid);
     };
 
