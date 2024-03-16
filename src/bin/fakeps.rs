@@ -33,10 +33,10 @@ fn main() {
         ps[random_pid].push(next_pid);
     };
 
-    println!("PID PPID CMD"); // FIXME column format
+    println!("{:>10}{:>10} {}", "PID", "PPID", "CMD");
     for ppid in 0..n {
         for pid in &ps[ppid] {
-            println!("{0} {1} Fake process {2}", pid, ppid, pid); // FIXME column format
+            println!("{:>10}{:>10} Fake process {}", pid, ppid, pid);
         }
     }
 }
