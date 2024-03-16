@@ -1,4 +1,7 @@
-use std::{collections::HashMap, io::{self, BufRead}, num::ParseIntError, time::SystemTime};
+use std::collections::HashMap;
+use std::num::ParseIntError;
+use std::time::SystemTime;
+use std::io::{self, BufRead};
 
 type Process = (usize, usize, String);
 
@@ -46,5 +49,5 @@ fn main() {
     let tree = build_tree(processes);
     let total = SystemTime::now().duration_since(start).unwrap();
     print_tree(&tree, 0, 0);
-    println!("Processing time: {:?}", total);
+    eprintln!("Processing time: {:?}", total);
 }
