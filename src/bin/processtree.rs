@@ -7,34 +7,41 @@ use log::info;
 
 // for simplified error handling
 extern crate anyhow;
-use anyhow::Result;
+use anyhow::{Context, Result};
 
 type Process = (usize, usize, String);
 
 type ProcessTree = HashMap<usize, Vec<Process>>;
 
+// Option: when the absence of a value is part of the correct behavior
+// Result: when actual errors are possible
+// Conjecture: Result should never get projected to an Option
+
 /// Creates a line parser from a header of the form "... PID ... PPID ... COMMAND ..." (or CMD).
-fn make_parser_from_header(header: &str) -> Option<impl Fn(&str) -> Result<Process>> {
+fn make_parser_from_header(header: &str) -> Result<impl Fn(&str) -> Result<Process>> {
     let cols: Vec<&str> = header.split_whitespace().collect();
-    let pos_in_cols = |col: &str| cols.iter().position(|&r| r == col).unwrap();
-    let [i_pid, i_ppid] = ["PID", "PPID"].map(pos_in_cols);
+    let pos_in_cols = |col: &str| cols.iter().position(|&r| r == col);
+    let i_pid = pos_in_cols("PID").context("No PID column")?;
+    let i_ppid = pos_in_cols("PPID").context("No PPID column")?;
     let i_cmd = ["CMD", "COMMAND"].iter()
         .filter_map(|&cmd| header.find(cmd))
-        .max()?;
-    Some(move |line: &str| { 
+        .max()
+        .context("No CMD or COMMAND column") // converts Option to Result
+        ?; // unwraps Result and returns early if Err
+    Ok(move |line: &str| {
         let tokens: Vec<&str> = line.split_whitespace().collect();
-        let pid = tokens[i_pid].parse::<usize>()?;
-        let ppid = tokens[i_ppid].parse::<usize>()?;
-        let cmd = line[i_cmd..].trim();
+        let pid = tokens.get(i_pid).context("Input line too short")?.parse::<usize>()?;
+        let ppid = tokens.get(i_ppid).context("Input line too short")?.parse::<usize>()?;
+        let cmd = line.get(i_cmd..).context("Input line too short")?.trim();
         Ok((pid, ppid, cmd.to_string()))
     })
 }
 
 /// Builds a process tree from a flat list of processes.
-fn build_tree(processes: impl Iterator<Item = Process>) -> ProcessTree {
+fn build_tree(processes: Vec<Process>) -> ProcessTree {
     let mut tree: HashMap<usize, Vec<(usize, usize, String)>> = HashMap::new();
     for (pid, ppid, cmd) in processes {
-        tree.entry(ppid).or_default().push((pid, ppid, cmd));
+        tree.entry(ppid).or_insert(Vec::with_capacity(5)).push((pid, ppid, cmd));
     }
     tree
 }
@@ -52,9 +59,17 @@ fn print_tree(tree: &ProcessTree, pid: usize, depth: usize) {
 fn main() -> Result<()> {
     env_logger::init();
     let mut lines = io::stdin().lock().lines();
-    let header = lines.next().unwrap()?;
-    let parser = make_parser_from_header(header.as_str()).unwrap();
-    let processes = lines.map(|line: Result<String, io::Error>| line.unwrap()).map(|line| parser(&line).unwrap());
+    let header = lines
+        .next()
+        .context("No header line") // converts Option to Result
+        ? // unwraps outer Result and returns early if Err
+        ?; // unwraps remaining inner Result
+    let parser = make_parser_from_header(header.as_str()).context("Invalid header")?;
+    // https://doc.rust-lang.org/rust-by-example/error/iter_result.html
+    let processes = lines
+        .map(|line| parser(&line?)) // ? unwraps Result from each line
+        .collect::<Result<_>>() // fails if parsing one line fails
+        ?;
     let start = SystemTime::now();
     let tree = build_tree(processes);
     let total = SystemTime::now().duration_since(start)?;
