@@ -58,22 +58,55 @@ fn print_tree(tree: &ProcessTree, pid: usize, depth: usize) {
 
 fn main() -> Result<()> {
     env_logger::init();
+    mark_time("Start time");
     let mut lines = io::stdin().lock().lines();
     let header = lines
         .next()
         .context("No header line") // converts Option to Result
         ? // unwraps outer Result and returns early if Err
         ?; // unwraps remaining inner Result
+    mark_time("Setup time");
     let parser = make_parser_from_header(header.as_str()).context("Invalid header")?;
     // https://doc.rust-lang.org/rust-by-example/error/iter_result.html
     let processes = lines
         .map(|line| parser(&line?)) // ? unwraps Result from each line
         .collect::<Result<_>>() // fails if parsing one line fails
         ?;
-    let start = SystemTime::now();
+    mark_time("Input time");
     let tree = build_tree(processes);
-    let total = SystemTime::now().duration_since(start)?;
+    mark_time("Insertion time");
     print_tree(&tree, 0, 0);
-    info!("Processing time: {:?}", total);
+    mark_time("Output time");
+    println!("Total processes: {}", tree.len());
+    print_timestamps();
     Ok(())
+}
+
+// TODO modularize code below
+
+// https://stackoverflow.com/questions/27791532/how-do-i-create-a-global-mutable-singleton
+
+use std::sync::{Mutex, OnceLock};
+
+type TimeStamp = (String, SystemTime);
+
+fn timestamps() -> &'static Mutex<Vec<TimeStamp>> {
+    static ARRAY: OnceLock<Mutex<Vec<TimeStamp>>> = OnceLock::new();
+    ARRAY.get_or_init(|| Mutex::new(vec![]))
+}
+
+fn mark_time(label: &str) {
+    timestamps().lock().unwrap().push((label.to_string(), SystemTime::now()));
+}
+
+fn print_timestamps() {
+    for window in timestamps().lock().unwrap().windows(2) {
+        if let [(_, t0), (label, t1)] = window {
+            let time = t1.duration_since(*t0).unwrap();
+            info!("{}: {:?}", label, time);    
+        }
+    }
+    let start = timestamps().lock().unwrap().first().unwrap().1;
+    let stop = timestamps().lock().unwrap().last().unwrap().1;
+    info!("TOTAL time: {:?}", stop.duration_since(start).unwrap());
 }
