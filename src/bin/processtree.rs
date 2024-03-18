@@ -47,9 +47,9 @@ fn build_tree(processes: Vec<Process>) -> ProcessTree {
 /// Prints a process tree with indentation.
 fn print_tree(tree: &ProcessTree, pid: usize, depth: usize) {
     if let Some(processes) = tree.get(&pid) {
-        for (pid, _, cmd) in processes {
-            println!("{:indent$}{}: {}", "", pid, cmd, indent = depth * 2);
-            print_tree(tree, *pid, depth + 1);
+        for (cid, _, cmd) in processes {
+            println!("{:indent$}{}: {}", "", *cid, cmd, indent = depth * 2);
+            print_tree(tree, *cid, depth + 1);
         }
     }
 }

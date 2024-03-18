@@ -28,7 +28,7 @@ fn main() {
     println!("{:>10}{:>10} CMD", "PID", "PPID");
     for (ppid, children) in ps.iter().enumerate() {
         for pid in children {
-            println!("{:>10}{:>10} Fake process {}", *pid, ppid, pid);
+            println!("{:>10}{:>10} Fake process {}", pid, ppid, pid);
         }
     }
 }
