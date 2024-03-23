@@ -21,7 +21,8 @@ fn make_parser_from_header(header: &str) -> Result<impl Fn(&str) -> Result<Proce
     let pos_in_cols = |col: &str| cols.iter().position(|&r| r == col);
     let i_pid = pos_in_cols("PID").context("No PID column")?;
     let i_ppid = pos_in_cols("PPID").context("No PPID column")?;
-    let i_cmd = ["CMD", "COMMAND"].iter()
+    let i_cmd = ["CMD", "COMMAND"]
+        .iter()
         .filter_map(|&cmd| header.find(cmd))
         .max()
         .context("No CMD or COMMAND column") // converts Option to Result
