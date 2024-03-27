@@ -28,7 +28,7 @@ fn make_parser_from_header(header: &str) -> Result<impl Fn(&str) -> Result<Proce
         .context("No CMD or COMMAND column") // converts Option to Result
         ?; // unwraps Result and returns early if Err
     Ok(move |line: &str| {
-        let tokens: Vec<&str> = line.split_whitespace().collect();
+        let tokens = line.split_whitespace().collect::<Vec<&str>>();
         let pid = tokens.get(i_pid).context("Input line too short")?.parse::<usize>()?;
         let ppid = tokens.get(i_ppid).context("Input line too short")?.parse::<usize>()?;
         let cmd = line.get(i_cmd..).context("Input line too short")?.trim();
